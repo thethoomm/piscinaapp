@@ -17,54 +17,106 @@ const InputGroup = ({ children }: InputGroupProps) => {
 };
 
 export default function MyForm() {
+  const delayTime = 15000
   const [status, setStatus] = useState<'off' | 'submitting' | 'submitted'>('off')
   const [readyToSend, setReadyToSend] = useState<boolean>(false)
   const [sensorData, setSensorData] = useState({
     temperaturaMax: "",
-    salinidadeMax: "",
-    orpMax: "",
-    condutividadeMax: "",
-    oxigenioMax: "",
-    pHMax: "",
-
     temperaturaMin: "",
+
+    salinidadeMax: "",
     salinidadeMin: "",
+
+    orpMax: "",
     orpMin: "",
+
+    condutividadeMax: "",
     condutividadeMin: "",
+
+    oxigenioMax: "",
     oxigenioMin: "",
+
+    pHMax: "",
     pHMin: "",
+
   })
 
-  const sendToThingspeak = () => {
+  const urlToThingspeak = (value: string, fieldNum: number, apiKey: string) => {
+    return `https://api.thingspeak.com/update?api_key=${apiKey}&field${fieldNum}=${value}`
+  }
+
+  const sendToThingspeak = async () => {
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     for (const [field, value] of Object.entries(sensorData)) {
+      await delay(delayTime)
+      console.log("delay ", delayTime)
+      console.log("FIELD", field)
+      console.log("VALUE", value)
       switch (field) {
         case "orpMax":
+          console.log(value) 
+          const r = await axios.get(urlToThingspeak(value, 7, '23YC8RS6DRHAJX93'))
+          console.log(r.status)
+          break
         case "orpMin":
           console.log(value)
+          const k = await axios.get(urlToThingspeak(value, 8, '23YC8RS6DRHAJX93'))
+          console.log(k.status)
           break
         case "pHMax":
+          console.log(value)
+          const j = await  axios.get(urlToThingspeak(value, 3, '23YC8RS6DRHAJX93'))
+          console.log(j.status)
+          break
         case "pHMin":
           console.log(value)
+          const i = await axios.get(urlToThingspeak(value, 4, '23YC8RS6DRHAJX93'))
+          console.log(i.status)
           break
         case "temperaturaMax":
+          console.log(value)
+          const h = await axios.get(urlToThingspeak(value, 1, '23YC8RS6DRHAJX93'))
+          console.log(h.status)
+          break
         case "temperaturaMin":
           console.log(value)
+          const g = await axios.get(urlToThingspeak(value, 2, '23YC8RS6DRHAJX93'))
+          console.log(g.status)
           break
-        case "condutividaddeMax":
+        case "condutividadeMax":
+          console.log(value)
+          const f = await axios.get(urlToThingspeak(value, 1, 'OKPJYMR8BY4DS76U'))
+          console.log(f.status)
+          break
         case "condutividadeMin":
           console.log(value)
+          const e = await axios.get(urlToThingspeak(value, 2, 'OKPJYMR8BY4DS76U'))
+          console.log(e.status)
           break
         case "salinidadeMax":
+          console.log(value)
+          const d = await axios.get(urlToThingspeak(value, 3, 'OKPJYMR8BY4DS76U'))
+          console.log(d.status)
+          break
         case "salinidadeMin":
           console.log(value)
+          const c = await axios.get(urlToThingspeak(value, 4, 'OKPJYMR8BY4DS76U'))
+          console.log(c.status)
           break
         case "oxigenioMax":
+          console.log(value)
+          const b = await axios.get(urlToThingspeak(value, 5, '23YC8RS6DRHAJX93'))
+          console.log(b.status)
+          break
         case "oxigenioMin":
           console.log(value)
+          const a = await axios.get(urlToThingspeak(value, 6, '23YC8RS6DRHAJX93'))
+          console.log(a.status)
           break
         default:
-          break
+        break
       }
+      
       // const response = axios.get(`https://api.thingspeak.com/update?api_key=45RRXIFNQCRJK1B3&field1=${}`)
     }
 
@@ -72,9 +124,8 @@ export default function MyForm() {
 
   useEffect(() => {
     if (status === 'submitting') {
-      const timer = setTimeout(() => setStatus('submitted'), 200);
+      const timer = setTimeout(() => setStatus('submitted'), delayTime);
       return () => {
-        sendToThingspeak()
         clearTimeout(timer);
       };
     }
@@ -104,16 +155,16 @@ export default function MyForm() {
   const resetAll = () => {
     setSensorData({
       temperaturaMax: "",
-      salinidadeMax: "",
-      orpMax: "",
-      condutividadeMax: "",
-      oxigenioMax: "",
-      pHMax: "",
       temperaturaMin: "",
+      salinidadeMax: "",
       salinidadeMin: "",
+      orpMax: "",
       orpMin: "",
+      condutividadeMax: "",
       condutividadeMin: "",
+      oxigenioMax: "",
       oxigenioMin: "",
+      pHMax: "",
       pHMin: "",
     })
   
@@ -122,7 +173,10 @@ export default function MyForm() {
 
   return (
     <View flex={1}>
-      <Form onSubmit={() => setStatus("submitting")} flex={1} alignItems='center' paddingTop={"$3"} paddingBottom={"$6"}>
+      <Form onSubmit={() => {
+        sendToThingspeak()
+        setStatus("submitting")
+      }} flex={1} alignItems='center' paddingTop={"$3"} paddingBottom={"$6"}>
         <ScrollView flex={1} paddingHorizontal={"$8"}>
           <XStack marginBottom={"$6"} justifyContent='center' width={"$20"}>
             <H2>Modo Manual</H2>
